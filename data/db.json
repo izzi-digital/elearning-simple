@@ -10,7 +10,8 @@
       "fullName": "Andi Budiman",
       "email": "andi@contoh.com",
       "password": "password123",
-      "role": "siswa"
+      "role": "siswa",
+      "class": "X A"
     }
   ]
 }

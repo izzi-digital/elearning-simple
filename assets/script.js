@@ -21,7 +21,7 @@ $(document).ready(function () {
 
   async function initializeApp() {
     try {
-      // Path diubah untuk memuat dari folder 'data'
+      // Memuat data pengguna dari file JSON
       const response = await fetch("./data/db.json");
       const data = await response.json();
       dbUsers = data.users;
@@ -29,9 +29,11 @@ $(document).ready(function () {
       console.error("Gagal memuat db.json dari folder data:", error);
     }
 
+    // Memeriksa apakah ada pengguna yang sudah login di localStorage
     const loggedInUser = JSON.parse(localStorage.getItem("currentUser"));
     if (loggedInUser && loggedInUser.isLoggedIn) {
       currentUser = loggedInUser;
+      // Mengarahkan ke dasbor yang sesuai berdasarkan peran
       if (currentUser.role === "guru") {
         $("#teacher-name").text(currentUser.fullName);
         showPage("teacher-dashboard");
@@ -39,7 +41,7 @@ $(document).ready(function () {
         $("#student-name").text(currentUser.fullName);
         showPage("student-dashboard");
       }
-      initPusher();
+      initPusher(); // Inisialisasi Pusher untuk pengguna yang login
     } else {
       showPage("login-register-page");
     }
@@ -66,6 +68,7 @@ $(document).ready(function () {
       return;
     }
 
+    // Pengguna baru yang mendaftar hanya disimpan di localStorage
     localUsers.push({ fullName, email, password, role: "siswa" });
     localStorage.setItem("localUsers", JSON.stringify(localUsers));
 
@@ -80,33 +83,33 @@ $(document).ready(function () {
     const email = $("#email_login").val();
     const password = $("#password_login").val();
 
-    if (email === "admin" && password === "Bismillah") {
-      currentUser = {
-        fullName: "Administrator",
-        email: "admin",
-        role: "guru",
-        isLoggedIn: true,
-      };
-      localStorage.setItem("currentUser", JSON.stringify(currentUser));
-      $("#teacher-name").text(currentUser.fullName);
-      showPage("teacher-dashboard");
-      initPusher();
-      return;
-    }
-
+    // Gabungkan pengguna dari db.json dan yang terdaftar lokal
     let localUsers = JSON.parse(localStorage.getItem("localUsers")) || [];
     const allUsers = [...dbUsers, ...localUsers];
+
+    // Cari pengguna berdasarkan email dan password
     const foundUser = allUsers.find(
       (user) => user.email === email && user.password === password
     );
 
     if (foundUser) {
+      // Jika pengguna ditemukan, simpan sesi mereka
       currentUser = { ...foundUser, isLoggedIn: true };
       localStorage.setItem("currentUser", JSON.stringify(currentUser));
-      $("#student-name").text(currentUser.fullName);
-      showPage("student-dashboard");
-      initPusher();
+
+      // Arahkan ke dasbor yang benar berdasarkan peran (role)
+      if (foundUser.role === "guru") {
+        $("#teacher-name").text(currentUser.fullName);
+        showPage("teacher-dashboard");
+      } else {
+        // Asumsikan peran lainnya adalah siswa
+        $("#student-name").text(currentUser.fullName);
+        showPage("student-dashboard");
+      }
+
+      initPusher(); // Inisialisasi Pusher setelah login berhasil
     } else {
+      // Jika pengguna tidak ditemukan
       $("#login-alert").html(
         '<div class="alert alert-danger">Email atau password salah.</div>'
       );
@@ -259,63 +262,4 @@ $(document).ready(function () {
       }),
     }).fail((err) => console.error("Gagal mengirim event ke Pusher:", err));
   }
-
-  // ======================= LOGIKA GEMINI AI =======================
-  $(".open-gemini-btn").on("click", function () {
-    $("#gemini-modal").fadeIn();
-  });
-
-  $(".close-gemini-btn").on("click", function () {
-    $("#gemini-modal").fadeOut();
-  });
-
-  $("#gemini-form").on("submit", async function (e) {
-    e.preventDefault();
-    const prompt = $("#gemini-prompt").val();
-    if (!prompt) return;
-
-    $("#gemini-loading").show();
-    $("#gemini-response").text("Sedang berpikir...");
-
-    const apiKey = ""; // Kunci API akan disediakan oleh lingkungan Canvas
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-
-    const payload = {
-      contents: [
-        {
-          parts: [{ text: prompt }],
-        },
-      ],
-    };
-
-    try {
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-
-      if (result.candidates && result.candidates.length > 0) {
-        const text = result.candidates[0].content.parts[0].text;
-        $("#gemini-response").text(text);
-      } else {
-        $("#gemini-response").text(
-          "Maaf, tidak ada jawaban yang bisa ditampilkan."
-        );
-      }
-    } catch (error) {
-      console.error("Error memanggil Gemini API:", error);
-      $("#gemini-response").text(
-        "Terjadi kesalahan saat menghubungi Asisten AI. Silakan coba lagi."
-      );
-    } finally {
-      $("#gemini-loading").hide();
-    }
-  });
 });
