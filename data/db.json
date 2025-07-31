@@ -1,0 +1,16 @@
+{
+  "users": [
+    {
+      "fullName": "Smart Teacher",
+      "email": "guru@contoh.com",
+      "password": "Bismillah",
+      "role": "teacher"
+    },
+    {
+      "fullName": "Andi Budiman",
+      "email": "andi@contoh.com",
+      "password": "password123",
+      "role": "siswa"
+    }
+  ]
+}
