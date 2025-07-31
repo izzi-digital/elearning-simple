@@ -1,247 +1,227 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Simple E-Learning</title>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    
-    <style>
-        /* CSS untuk tampilan utama dan efek glassmorphism */
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: #343a40;
-            color: #f8f9fa;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 2rem;
-        }
-        .page { display: none; width: 100%; }
-        .page.active { display: block; }
-        .main-title {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 1rem;
-            padding: 1rem 2rem;
-            margin-bottom: 2rem;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            font-weight: 600;
-        }
-        .card-glass {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 1rem;
-            padding: 2.5rem;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .card-glass:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.5);
-        }
-        .form-control {
-            background: rgba(255, 255, 255, 0.15);
-            border: none;
-            color: #fff;
-            border-radius: 0.5rem;
-        }
-        .form-control:focus {
-            background: rgba(255, 255, 255, 0.2);
-            box-shadow: none;
-            color: #fff;
-        }
-        .form-control::placeholder { color: #adb5bd; }
-        .btn-primary { background-color: #0d6efd; border: none; font-weight: 600; }
-        .btn-info { background-color: #0dcaf0; border: none; font-weight: 600; }
-        .btn-danger { font-weight: 600; }
-        .nobar-player {
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 */
-            height: 0;
-            overflow: hidden;
-            max-width: 100%;
-            background: #000;
-            border-radius: 0.5rem;
-        }
-        .nobar-player iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-        /* Style untuk Modal Gemini AI */
-        .gemini-modal {
-            display: none;
-            position: fixed;
-            z-index: 1050;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.5);
-        }
-        .gemini-modal-content {
-            margin: 10% auto;
-            width: 90%;
-            max-width: 700px;
-        }
-        #gemini-response {
-            background-color: rgba(0,0,0,0.2);
-            border-radius: 0.5rem;
-            padding: 1rem;
-            min-height: 150px;
-            white-space: pre-wrap; /* Agar teks respons AI rapi */
-            font-family: monospace;
-        }
-    </style>
-</head>
-<body>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
 
+    <link href="assets/style.css" rel="stylesheet" />
+  </head>
+  <body>
     <!-- HALAMAN LOGIN & REGISTER -->
     <div id="login-register-page" class="page active">
+      <div class="container">
         <h1 class="main-title text-center">E-Learning</h1>
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-10">
-                    <div class="row">
-                        <!-- Kolom Sign In -->
-                        <div class="col-md-6 mb-4 mb-md-0">
-                            <div class="card-glass h-100">
-                                <h3 class="mb-4">Sign In</h3>
-                                <div id="login-alert"></div>
-                                <form id="login-form">
-                                    <div class="mb-3">
-                                        <label for="email_login" class="form-label">Email / Username</label>
-                                        <input type="text" class="form-control" id="email_login" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="password_login" class="form-label">Password</label>
-                                        <input type="password" class="form-control" id="password_login" required>
-                                    </div>
-                                    <div class="d-grid mt-4">
-                                        <button type="submit" class="btn btn-primary">Sign In</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        <!-- Kolom Register -->
-                        <div class="col-md-6">
-                            <div class="card-glass h-100">
-                                <h3 class="mb-4">Register (Siswa)</h3>
-                                <div id="register-alert"></div>
-                                <form id="register-form">
-                                    <div class="mb-3">
-                                        <label for="full_name" class="form-label">Full Name</label>
-                                        <input type="text" class="form-control" id="full_name" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="email_register" class="form-label">Email Address</label>
-                                        <input type="email" class="form-control" id="email_register" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="password_register" class="form-label">Password</label>
-                                        <input type="password" class="form-control" id="password_register" required>
-                                    </div>
-                                    <div class="d-grid mt-4">
-                                        <button type="submit" class="btn btn-primary">Register</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
+        <div class="row justify-content-center">
+          <div class="col-lg-10">
+            <div class="row">
+              <!-- Kolom Sign In -->
+              <div class="col-md-6 mb-4 mb-md-0">
+                <div class="card-glass h-100">
+                  <h3 class="mb-4">Sign In</h3>
+                  <div id="login-alert"></div>
+                  <form id="login-form">
+                    <div class="mb-3">
+                      <label for="email_login" class="form-label"
+                        >Email / Username</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="email_login"
+                        required
+                      />
                     </div>
+                    <div class="mb-3">
+                      <label for="password_login" class="form-label"
+                        >Password</label
+                      >
+                      <input
+                        type="password"
+                        class="form-control"
+                        id="password_login"
+                        required
+                      />
+                    </div>
+                    <div class="d-grid mt-4">
+                      <button type="submit" class="btn btn-primary">
+                        Sign In
+                      </button>
+                    </div>
+                  </form>
                 </div>
+              </div>
+              <!-- Kolom Register -->
+              <div class="col-md-6">
+                <div class="card-glass h-100">
+                  <h3 class="mb-4">Register (Siswa)</h3>
+                  <div id="register-alert"></div>
+                  <form id="register-form">
+                    <div class="mb-3">
+                      <label for="full_name" class="form-label"
+                        >Full Name</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="full_name"
+                        required
+                      />
+                    </div>
+                    <div class="mb-3">
+                      <label for="email_register" class="form-label"
+                        >Email Address</label
+                      >
+                      <input
+                        type="email"
+                        class="form-control"
+                        id="email_register"
+                        required
+                      />
+                    </div>
+                    <div class="mb-3">
+                      <label for="password_register" class="form-label"
+                        >Password</label
+                      >
+                      <input
+                        type="password"
+                        class="form-control"
+                        id="password_register"
+                        required
+                      />
+                    </div>
+                    <div class="d-grid mt-4">
+                      <button type="submit" class="btn btn-primary">
+                        Register
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- HALAMAN DASBOR GURU -->
     <div id="teacher-dashboard" class="page">
-        <div class="container">
-            <div class="card-glass">
-                <h2 class="mb-3">Dasbor Guru</h2>
-                <p>Selamat datang, <strong id="teacher-name"></strong>!</p>
-                <button id="start-nobar-btn" class="btn btn-primary">Mulai Sesi Nobar</button>
-                <button class="btn btn-info open-gemini-btn">Tanya Asisten AI</button>
-                <button class="btn btn-danger logout-btn">Logout</button>
-            </div>
+      <div class="container">
+        <div class="card-glass">
+          <h2 class="mb-3">Dasbor Guru</h2>
+          <p>Selamat datang, <strong id="teacher-name"></strong>!</p>
+          <button id="start-nobar-btn" class="btn btn-primary">
+            Mulai Sesi Nobar
+          </button>
+          <button class="btn btn-info open-gemini-btn">Tanya Asisten AI</button>
+          <button class="btn btn-danger logout-btn">Logout</button>
         </div>
+      </div>
     </div>
 
     <!-- HALAMAN DASBOR SISWA -->
     <div id="student-dashboard" class="page">
-        <div class="container">
-            <div class="card-glass">
-                <h2 class="mb-3">Dasbor Siswa</h2>
-                <p>Selamat datang, <strong id="student-name"></strong>!</p>
-                <div id="nobar-notification" class="alert alert-info" style="display: none;">
-                    Guru telah memulai sesi nobar!
-                    <button id="join-nobar-btn" class="btn btn-sm btn-success ms-3">Gabung Sekarang</button>
-                </div>
-                <button class="btn btn-info open-gemini-btn">Tanya Asisten AI</button>
-                <button class="btn btn-danger logout-btn">Logout</button>
-            </div>
+      <div class="container">
+        <div class="card-glass">
+          <h2 class="mb-3">Dasbor Siswa</h2>
+          <p>Selamat datang, <strong id="student-name"></strong>!</p>
+          <div
+            id="nobar-notification"
+            class="alert alert-info"
+            style="display: none"
+          >
+            Guru telah memulai sesi nobar!
+            <button id="join-nobar-btn" class="btn btn-sm btn-success ms-3">
+              Gabung Sekarang
+            </button>
+          </div>
+          <button class="btn btn-info open-gemini-btn">Tanya Asisten AI</button>
+          <button class="btn btn-danger logout-btn">Logout</button>
         </div>
+      </div>
     </div>
-    
+
     <!-- HALAMAN NOBAR -->
     <div id="nobar-page" class="page">
-        <div class="container">
-            <div class="card-glass">
-                <h3 class="mb-4">Ruang Nonton Bareng</h3>
-                <p>Video ID YouTube: <code id="youtube-video-id"></code></p>
-                <div class="nobar-player mb-3">
-                    <div id="nobar-player-container"></div>
-                </div>
-                <div id="teacher-controls" style="display: none;">
-                    <p>Status: <span id="player-status">Menunggu</span></p>
-                    <button id="play-btn" class="btn btn-success">Play</button>
-                    <button id="pause-btn" class="btn btn-warning">Pause</button>
-                    <div class="mt-2">
-                        <label for="seek-slider" class="form-label">Seek:</label>
-                        <input type="range" class="form-range" id="seek-slider" min="0" max="100" value="0">
-                    </div>
-                </div>
-                 <button class="btn btn-secondary mt-3 back-to-dashboard-btn">Kembali ke Dasbor</button>
+      <div class="container">
+        <div class="card-glass">
+          <h3 class="mb-4">Ruang Nonton Bareng</h3>
+          <p>Video ID YouTube: <code id="youtube-video-id"></code></p>
+          <div class="nobar-player mb-3">
+            <div id="nobar-player-container"></div>
+          </div>
+          <div id="teacher-controls" style="display: none">
+            <p>Status: <span id="player-status">Menunggu</span></p>
+            <button id="play-btn" class="btn btn-success">Play</button>
+            <button id="pause-btn" class="btn btn-warning">Pause</button>
+            <div class="mt-2">
+              <label for="seek-slider" class="form-label">Seek:</label>
+              <input
+                type="range"
+                class="form-range"
+                id="seek-slider"
+                min="0"
+                max="100"
+                value="0"
+              />
             </div>
+          </div>
+          <button class="btn btn-secondary mt-3 back-to-dashboard-btn">
+            Kembali ke Dasbor
+          </button>
         </div>
+      </div>
     </div>
 
     <!-- MODAL UNTUK GEMINI AI -->
     <div id="gemini-modal" class="gemini-modal">
-        <div class="gemini-modal-content card-glass">
-            <h4 class="mb-3">Asisten AI Gemini</h4>
-            <form id="gemini-form">
-                <div class="mb-3">
-                    <label for="gemini-prompt" class="form-label">Masukkan pertanyaan Anda:</label>
-                    <textarea class="form-control" id="gemini-prompt" rows="3" required></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Kirim</button>
-                <button type="button" class="btn btn-secondary close-gemini-btn">Tutup</button>
-            </form>
-            <hr class="my-4">
-            <h5 class="mb-3">Jawaban:</h5>
-            <div id="gemini-response-container">
-                <div id="gemini-response">Menunggu pertanyaan Anda...</div>
-                <div id="gemini-loading" class="text-center mt-3" style="display: none;">
-                    <div class="spinner-border text-light" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                </div>
+      <div class="gemini-modal-content card-glass">
+        <h4 class="mb-3">Asisten AI Gemini</h4>
+        <form id="gemini-form">
+          <div class="mb-3">
+            <label for="gemini-prompt" class="form-label"
+              >Masukkan pertanyaan Anda:</label
+            >
+            <textarea
+              class="form-control"
+              id="gemini-prompt"
+              rows="3"
+              required
+            ></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Kirim</button>
+          <button type="button" class="btn btn-secondary close-gemini-btn">
+            Tutup
+          </button>
+        </form>
+        <hr class="my-4" />
+        <h5 class="mb-3">Jawaban:</h5>
+        <div id="gemini-response-container">
+          <div id="gemini-response">Menunggu pertanyaan Anda...</div>
+          <div
+            id="gemini-loading"
+            class="text-center mt-3"
+            style="display: none"
+          >
+            <div class="spinner-border text-light" role="status">
+              <span class="visually-hidden">Loading...</span>
             </div>
+          </div>
         </div>
+      </div>
     </div>
-
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -250,279 +230,6 @@
     <!-- YouTube IFrame API -->
     <script src="https://www.youtube.com/iframe_api"></script>
 
-    <script>
-        // ======================= KONFIGURASI & VARIABEL GLOBAL =======================
-        const PUSHER_APP_KEY = 'e8c4316838343859317e';
-        const PUSHER_CLUSTER = 'ap1';
-        const PUSHER_CHANNEL_NAME = 'nobar-channel-public-demo';
-        const PUSHER_EVENT_NAME = 'video-control-event';
-        const PUSHER_PROXY_URL = 'https://sincere-glittery-solstice.glitch.me/trigger-pusher';
-        
-        let currentUser = null;
-        let youtubePlayer = null;
-        let pusher = null;
-        let channel = null;
-        let dbUsers = []; // Untuk menyimpan user dari db.json
-
-        // ======================= FUNGSI UTAMA & MANAJEMEN HALAMAN =======================
-        $(document).ready(function() {
-            
-            function showPage(pageId) {
-                $('.page').removeClass('active');
-                $('#' + pageId).addClass('active');
-            }
-
-            async function initializeApp() {
-                try {
-                    // UPDATED: Path diubah untuk memuat dari folder 'data'
-                    const response = await fetch('./data/db.json');
-                    const data = await response.json();
-                    dbUsers = data.users;
-                } catch (error) {
-                    console.error("Gagal memuat db.json dari folder data:", error);
-                }
-
-                const loggedInUser = JSON.parse(localStorage.getItem('currentUser'));
-                if (loggedInUser && loggedInUser.isLoggedIn) {
-                    currentUser = loggedInUser;
-                    if (currentUser.role === 'guru') {
-                        $('#teacher-name').text(currentUser.fullName);
-                        showPage('teacher-dashboard');
-                    } else {
-                        $('#student-name').text(currentUser.fullName);
-                        showPage('student-dashboard');
-                    }
-                    initPusher();
-                } else {
-                    showPage('login-register-page');
-                }
-            }
-
-            initializeApp();
-
-            // ======================= LOGIKA AUTENTIKASI =======================
-            
-            $('#register-form').on('submit', function(e) {
-                e.preventDefault();
-                const fullName = $('#full_name').val();
-                const email = $('#email_register').val();
-                const password = $('#password_register').val();
-                
-                let localUsers = JSON.parse(localStorage.getItem('localUsers')) || [];
-                const isEmailTaken = dbUsers.find(u => u.email === email) || localUsers.find(u => u.email === email);
-                if (isEmailTaken) {
-                    $('#register-alert').html('<div class="alert alert-danger">Email sudah terdaftar.</div>');
-                    return;
-                }
-
-                localUsers.push({ fullName, email, password, role: 'siswa' });
-                localStorage.setItem('localUsers', JSON.stringify(localUsers));
-                
-                $('#register-alert').html('<div class="alert alert-success">Registrasi berhasil! Silakan login.</div>');
-                $('#register-form')[0].reset();
-            });
-
-            $('#login-form').on('submit', function(e) {
-                e.preventDefault();
-                const email = $('#email_login').val();
-                const password = $('#password_login').val();
-
-                if (email === 'admin' && password === 'Bismillah') {
-                    currentUser = { fullName: 'Administrator', email: 'admin', role: 'guru', isLoggedIn: true };
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    $('#teacher-name').text(currentUser.fullName);
-                    showPage('teacher-dashboard');
-                    initPusher();
-                    return;
-                }
-
-                let localUsers = JSON.parse(localStorage.getItem('localUsers')) || [];
-                const allUsers = [...dbUsers, ...localUsers];
-                const foundUser = allUsers.find(user => user.email === email && user.password === password);
-
-                if (foundUser) {
-                    currentUser = { ...foundUser, isLoggedIn: true };
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    $('#student-name').text(currentUser.fullName);
-                    showPage('student-dashboard');
-                    initPusher();
-                } else {
-                    $('#login-alert').html('<div class="alert alert-danger">Email atau password salah.</div>');
-                }
-            });
-
-            $('.logout-btn').on('click', function() {
-                localStorage.removeItem('currentUser');
-                currentUser = null;
-                if(pusher) pusher.disconnect();
-                youtubePlayer = null;
-                showPage('login-register-page');
-                location.reload();
-            });
-
-            $('.back-to-dashboard-btn').on('click', function() {
-                if (currentUser.role === 'guru') showPage('teacher-dashboard');
-                else showPage('student-dashboard');
-            });
-
-            // ======================= LOGIKA NOBAR (PUSHER & YOUTUBE) =======================
-            
-            function initPusher() {
-                if (pusher) return;
-                pusher = new Pusher(PUSHER_APP_KEY, { cluster: PUSHER_CLUSTER });
-                channel = pusher.subscribe(PUSHER_CHANNEL_NAME);
-
-                if (currentUser && currentUser.role === 'siswa') {
-                    channel.bind(PUSHER_EVENT_NAME, function(data) {
-                        if (data.type === 'start') {
-                            $('#nobar-notification').show();
-                            $('#join-nobar-btn').data('videoId', data.videoId);
-                        } else if (youtubePlayer) {
-                            handleVideoControl(data);
-                        }
-                    });
-                }
-            }
-
-            $('#start-nobar-btn').on('click', function() {
-                const videoId = prompt("Masukkan ID Video YouTube untuk Nobar:", "dQw4w9WgXcQ");
-                if (videoId) {
-                    sendPusherEvent({ type: 'start', videoId: videoId });
-                    loadNobarPage(videoId);
-                }
-            });
-
-            $('#join-nobar-btn').on('click', function() {
-                const videoId = $(this).data('videoId');
-                loadNobarPage(videoId);
-            });
-
-            function loadNobarPage(videoId) {
-                showPage('nobar-page');
-                $('#youtube-video-id').text(videoId);
-                if (currentUser.role === 'guru') {
-                    $('#teacher-controls').show();
-                }
-                if (youtubePlayer) {
-                    youtubePlayer.loadVideoById(videoId);
-                } else {
-                    createYouTubePlayer(videoId);
-                }
-            }
-
-            function createYouTubePlayer(videoId) {
-                youtubePlayer = new YT.Player('nobar-player-container', {
-                    height: '100%',
-                    width: '100%',
-                    videoId: videoId,
-                    playerVars: { 'playsinline': 1, 'controls': (currentUser.role === 'guru') ? 1 : 0, 'disablekb': 1 },
-                    events: { 'onReady': onPlayerReady, 'onStateChange': onPlayerStateChange }
-                });
-            }
-            
-            function onPlayerReady(event) {
-                if (currentUser.role === 'guru') setInterval(updateSlider, 1000);
-            }
-
-            function onPlayerStateChange(event) {
-                if (currentUser.role !== 'guru') return;
-                const statusMap = { [YT.PlayerState.PLAYING]: 'Playing', [YT.PlayerState.PAUSED]: 'Paused', [YT.PlayerState.ENDED]: 'Ended', [YT.PlayerState.BUFFERING]: 'Buffering', [YT.PlayerState.CUED]: 'Cued' };
-                $('#player-status').text(statusMap[event.data] || 'Unknown');
-                if (event.data === YT.PlayerState.PLAYING) sendPusherEvent({ type: 'play', time: youtubePlayer.getCurrentTime() });
-                else if (event.data === YT.PlayerState.PAUSED) sendPusherEvent({ type: 'pause' });
-            }
-            
-            function handleVideoControl(data) {
-                if (!youtubePlayer) return;
-                switch (data.type) {
-                    case 'play': youtubePlayer.seekTo(data.time, true); youtubePlayer.playVideo(); break;
-                    case 'pause': youtubePlayer.pauseVideo(); break;
-                    case 'seek': youtubePlayer.seekTo(data.time, true); break;
-                }
-            }
-
-            $('#play-btn').on('click', () => youtubePlayer && youtubePlayer.playVideo());
-            $('#pause-btn').on('click', () => youtubePlayer && youtubePlayer.pauseVideo());
-            $('#seek-slider').on('input', function() {
-                if (youtubePlayer) {
-                    const duration = youtubePlayer.getDuration();
-                    const seekToTime = duration * ($(this).val() / 100);
-                    youtubePlayer.seekTo(seekToTime, true);
-                    sendPusherEvent({ type: 'seek', time: seekToTime });
-                }
-            });
-            
-            function updateSlider() {
-                if (youtubePlayer && youtubePlayer.getDuration) {
-                    const currentTime = youtubePlayer.getCurrentTime();
-                    const duration = youtubePlayer.getDuration();
-                    $('#seek-slider').val((currentTime / duration) * 100);
-                }
-            }
-
-            function sendPusherEvent(data) {
-                $.ajax({
-                    url: PUSHER_PROXY_URL, method: 'POST', contentType: 'application/json',
-                    data: JSON.stringify({ channel: PUSHER_CHANNEL_NAME, event: PUSHER_EVENT_NAME, data: data })
-                }).fail(err => console.error("Gagal mengirim event ke Pusher:", err));
-            }
-
-            // ======================= LOGIKA GEMINI AI =======================
-            $('.open-gemini-btn').on('click', function() {
-                $('#gemini-modal').fadeIn();
-            });
-
-            $('.close-gemini-btn').on('click', function() {
-                $('#gemini-modal').fadeOut();
-            });
-
-            $('#gemini-form').on('submit', async function(e) {
-                e.preventDefault();
-                const prompt = $('#gemini-prompt').val();
-                if (!prompt) return;
-
-                $('#gemini-loading').show();
-                $('#gemini-response').text('Sedang berpikir...');
-
-                const apiKey = ""; // Kunci API akan disediakan oleh lingkungan Canvas
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-                
-                const payload = {
-                    contents: [{
-                        parts: [{ text: prompt }]
-                    }]
-                };
-
-                try {
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    const result = await response.json();
-                    
-                    if (result.candidates && result.candidates.length > 0) {
-                        const text = result.candidates[0].content.parts[0].text;
-                        $('#gemini-response').text(text);
-                    } else {
-                        $('#gemini-response').text('Maaf, tidak ada jawaban yang bisa ditampilkan.');
-                    }
-
-                } catch (error) {
-                    console.error("Error memanggil Gemini API:", error);
-                    $('#gemini-response').text('Terjadi kesalahan saat menghubungi Asisten AI. Silakan coba lagi.');
-                } finally {
-                    $('#gemini-loading').hide();
-                }
-            });
-
-        });
-    </script>
-
-</body>
+    <script src="assets/script.js"></script>
+  </body>
 </html>
